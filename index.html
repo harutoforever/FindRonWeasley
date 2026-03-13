@@ -110,7 +110,7 @@
         gameContainer.innerHTML = ''; 
         allTargets = [];
 
-        edImages.forEach(src => { for (let i = 0; i < 20; i++) createTarget(src, false); });
+        edImages.forEach(src => { for (let i = 0; i < 10; i++) createTarget(src, false); });
         createTarget(ronImage, true);
 
         update();
@@ -147,7 +147,7 @@
             // おめでとう画面
             content = `
                 <img src="${congratsImage}" class="result-img" alt="Congratulations!">
-                <h1 style="font-size:4rem; margin:0;">Congratulations!</h1>
+                <h1 style="font-size:4rem; margin:0;">Well done!</h1>
                 <p style="font-size:1.5rem; color: #5a4000;">完璧です！本物のロンを見つけ出しました！</p>
                 <div class="button-group">
                     <button class="btn btn-retry" onclick="startGame()">もう一度遊ぶ</button>
@@ -173,4 +173,5 @@
     startButton.addEventListener('click', startGame);
 </script>
 </body>
+
 </html>
