@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Ron Weasley! - Final Version</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #f0f0f0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        /* タイトル画面 */
+        #title-screen {
+            position: absolute; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background-color: #ffffff; z-index: 100;
+        }
+        #title-img { max-width: 70%; max-height: 40%; margin-bottom: 40px; object-fit: contain; }
+        #start-button {
+            padding: 20px 60px; font-size: 2.5rem; font-weight: bold; color: white;
+            background: linear-gradient(135deg, #d4a017, #b08512);
+            border: none; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        #start-button:hover { transform: scale(1.1); }
+
+        /* ゲーム画面 */
+        #game-container { width: 100vw; height: 100vh; position: relative; display: none; background-color: #e5e5e5; }
+        .target {
+            position: absolute; width: 120px; height: 120px;
+            cursor: pointer; user-select: none; border-radius: 50%; object-fit: cover;
+        }
+
+        /* リザルト表示用オーバーレイ */
+        #result-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 200; text-align: center; font-weight: bold;
+        }
+        
+        /* 成功・失敗時の画像スタイル */
+        .result-img { max-width: 50%; max-height: 45%; margin-bottom: 20px; object-fit: contain; }
+        
+        .button-group { display: flex; gap: 20px; margin-top: 20px; }
+        .btn {
+            padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border-radius: 10px;
+            border: none; color: white; font-weight: bold; transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.8; }
+        .btn-retry { background-color: #4CAF50; } 
+        .btn-home { background-color: #666; }    
+    </style>
+</head>
+<body>
+
+<div id="title-screen">
+    <img src="title.png" id="title-img" alt="Find Ron">
+    <button id="start-button">FIND RON</button>
+</div>
+
+<div id="game-container"></div>
+
+<div id="result-overlay"></div>
+
+<script>
+    const titleScreen = document.getElementById('title-screen');
+    const gameContainer = document.getElementById('game-container');
+    const resultOverlay = document.getElementById('result-overlay');
+    const startButton = document.getElementById('start-button');
+
+    const edSize = 120;
+    const baseSpeed = 4;
+    let allTargets = [];
+    let animationId;
+    
+    const edImages = ['edsheeran1.png', 'edsheeran2.png', 'edsheeran3.png'];
+    const oopsFaces = ['face1.png', 'face2.png', 'face3.png', 'face4.png'];
+    const ronImage = 'ron.png';
+    const congratsImage = 'congratulations.png';
+
+    function createTarget(src, isRon) {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'target';
+        gameContainer.appendChild(img);
+
+        const data = {
+            element: img,
+            posX: Math.random() * (window.innerWidth - edSize),
+            posY: Math.random() * (window.innerHeight - edSize),
+            speedX: (baseSpeed + Math.random() * 3) * (Math.random() > 0.5 ? 1 : -1),
+            speedY: (baseSpeed + Math.random() * 3) * (Math.random() > 0.5 ? 1 : -1)
+        };
+
+        img.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            stopGame();
+            showResult(isRon);
+        });
+
+        allTargets.push(data);
+    }
+
+    function startGame() {
+        titleScreen.style.display = 'none';
+        resultOverlay.style.display = 'none';
+        gameContainer.style.display = 'block';
+        gameContainer.innerHTML = ''; 
+        allTargets = [];
+
+        edImages.forEach(src => { for (let i = 0; i < 20; i++) createTarget(src, false); });
+        createTarget(ronImage, true);
+
+        update();
+    }
+
+    function stopGame() {
+        cancelAnimationFrame(animationId);
+    }
+
+    function update() {
+        const maxX = window.innerWidth - edSize;
+        const maxY = window.innerHeight - edSize;
+
+        allTargets.forEach(target => {
+            target.posX += target.speedX;
+            target.posY += target.speedY;
+
+            if (target.posX <= 0 || target.posX >= maxX) { target.speedX *= -1; target.posX = target.posX <= 0 ? 0 : maxX; }
+            if (target.posY <= 0 || target.posY >= maxY) { target.speedY *= -1; target.posY = target.posY <= 0 ? 0 : maxY; }
+
+            target.element.style.transform = `translate(${target.posX}px, ${target.posY}px)`;
+        });
+
+        animationId = requestAnimationFrame(update);
+    }
+
+    function showResult(isWin) {
+        resultOverlay.style.display = 'flex';
+        resultOverlay.style.backgroundColor = isWin ? 'rgba(255, 241, 184, 0.95)' : 'rgba(34, 34, 34, 0.95)';
+        resultOverlay.style.color = isWin ? '#d4a017' : '#ff4444';
+
+        let content = '';
+        if (isWin) {
+            // おめでとう画面
+            content = `
+                <img src="${congratsImage}" class="result-img" alt="Congratulations!">
+                <h1 style="font-size:4rem; margin:0;">Congratulations!</h1>
+                <p style="font-size:1.5rem; color: #5a4000;">完璧です！本物のロンを見つけ出しました！</p>
+                <div class="button-group">
+                    <button class="btn btn-retry" onclick="startGame()">もう一度遊ぶ</button>
+                    <button class="btn btn-home" onclick="location.reload()">タイトルへ</button>
+                </div>
+            `;
+        } else {
+            // 失敗画面
+            const randomFace = oopsFaces[Math.floor(Math.random() * oopsFaces.length)];
+            content = `
+                <img src="${randomFace}" class="result-img" alt="Oops!">
+                <h1 style="font-size:4rem; margin:0;">Oops!</h1>
+                <p style="font-size:1.5rem; color: white;">それはエドです。ロンではありません。</p>
+                <div class="button-group">
+                    <button class="btn btn-retry" onclick="startGame()">リトライ</button>
+                    <button class="btn btn-home" onclick="location.reload()">タイトルへ</button>
+                </div>
+            `;
+        }
+        resultOverlay.innerHTML = content;
+    }
+
+    startButton.addEventListener('click', startGame);
+</script>
+</body>
+</html>
