@@ -29,7 +29,7 @@
         /* ゲーム画面 */
         #game-container { width: 100vw; height: 100vh; position: relative; display: none; background-color: #e5e5e5; }
         .target {
-            position: absolute; width: 120px; height: 120px;
+            position: absolute; width: 80px; height: 80px;
             cursor: pointer; user-select: none; border-radius: 50%; object-fit: cover;
         }
 
@@ -70,7 +70,7 @@
     const resultOverlay = document.getElementById('result-overlay');
     const startButton = document.getElementById('start-button');
 
-    const edSize = 120;
+    const edSize = 80;
     const baseSpeed = 4;
     let allTargets = [];
     let animationId;
@@ -110,7 +110,7 @@
         gameContainer.innerHTML = ''; 
         allTargets = [];
 
-        edImages.forEach(src => { for (let i = 0; i < 30; i++) createTarget(src, false); });
+        edImages.forEach(src => { for (let i = 0; i < 25; i++) createTarget(src, false); });
         createTarget(ronImage, true);
 
         update();
@@ -148,7 +148,7 @@
             content = `
                 <img src="${congratsImage}" class="result-img" alt="Congratulations!">
                 <h1 style="font-size:4rem; margin:0;">Well done!</h1>
-                <p style="font-size:1.5rem; color: #5a4000;">完璧です！本物のロンを見つけ出しました！</p>
+                <p style="font-size:1.5rem; color: #5a4000;">本物のロンを見つけました！</p>
                 <div class="button-group">
                     <button class="btn btn-retry" onclick="startGame()">もう一度遊ぶ</button>
                     <button class="btn btn-home" onclick="location.reload()">タイトルへ</button>
@@ -173,7 +173,4 @@
     startButton.addEventListener('click', startGame);
 </script>
 </body>
-
 </html>
-
-
